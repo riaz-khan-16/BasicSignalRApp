@@ -1,0 +1,39 @@
+<h3>Client 1</h3>
+
+<input id="group" placeholder="Group name" />
+<input id="user" placeholder="User name" />
+<input id="msg" placeholder="Message" />
+
+<button onclick="join()">Join Group</button>
+<button onclick="send()">Send</button>
+
+<ul id="messages"></ul>
+
+<script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+<script>
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:7284/chat")
+    .build();
+
+connection.on("ReceiveMessage", (user, message) => {
+    const li = document.createElement("li");
+    li.textContent = `${user}: ${message}`;
+    document.getElementById("messages").appendChild(li);
+});
+
+connection.start();
+
+function join() {
+    connection.invoke("JoinGroup", document.getElementById("group").value);
+}
+
+function send() {
+    connection.invoke(
+        "SendMessageToGroup",
+        document.getElementById("group").value,
+        document.getElementById("user").value,
+        document.getElementById("msg").value
+    );
+}
+</script>
