@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@microsoft/signalr@8.0.0/dist/browser/signalr.min.js"></script>
+</head>
+<body>
+
+ <h1>Client 2</h1>
+
+<input id="user" placeholder="User name" />
+<input id="message" placeholder="Message" />
+<button onclick="send()">Send</button>
+
+<ul id="messages"></ul>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7284/chat", {
+            withCredentials: true
+        })
+        .build();
+
+    connection.on("ReceiveMessage", (user, message) => {
+        const li = document.createElement("li");
+        li.textContent = `${user}: ${message}`;
+        document.getElementById("messages").appendChild(li);
+    });
+
+    connection.start()
+        .then(() => console.log("Connected"))
+        .catch(err => console.error(err));
+
+    function send() {
+        const user = document.getElementById("user").value;
+        const message = document.getElementById("message").value;
+        connection.invoke("SendMessage", user, message);
+    }
+</script>
+
+</body>
+</html>
